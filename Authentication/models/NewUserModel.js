@@ -21,6 +21,11 @@ const NewUserModel = new mongoose.Schema({
         type:String,
         require:true
     },
+    role:{
+        type:String,
+        require:true,
+        enum: ['Admin', 'User', 'Guest'] 
+    }
     
 },{timestamps:true});
 
