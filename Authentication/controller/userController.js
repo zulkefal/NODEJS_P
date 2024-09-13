@@ -1,33 +1,22 @@
 const NewUser = require('../models/NewUserModel');
+const UserService = require('../Services/UserService');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
+const userService = new UserService(NewUser);
+
+
 const registerUser = async (req,res)=>{
     const {userName,fullName,email,password,gender,role}= req.body;
-    if(!userName || !fullName || !email || !password || !gender ||!role){
-        return res.status(400).json({"message":"Please fill all the fields"});
-    }
-    const user = await NewUser.findOne({userName});
-    if(user){
-        console.log(user)
-        return res.status(400).json({"message":"User already eeeexists"});
-    }
-
-    else
-    {
-        const hashPassword = await bcrypt.hash(password,10);
-        const newUser = await NewUser.create({
-            userName,
-            fullName,
-            email,
-            password:hashPassword,
-            gender,
-            role
-        })
-
-        if (newUser)
+    try{
+        const newUser = await userService.registerUser({userName,fullName,email,password,gender,role});
+        if(newUser)
         {
-            return res.status(201).json({"message":"User registered successfully"});
+            return res.status(200).json({"message":"User registered successfully"});
         }
+    }
+    catch(err){
+        return res.status(400).json({"message":err.message});
     }
 }
 
@@ -67,7 +56,7 @@ const signIn = async (req,res) => {
                 UserID:user._id,
                 userRole:user.role
             }
-            const token = jwt.sign(tokenData,process.env.tokenSecret,{expiresIn:'1h'});
+            const token = jwt.sign(tokenData,process.env.tokenSecret,{expiresIn:'1s'});
             return res.status(200).cookie("token",token, {httpOnly:true}).json({"message":"User logged in successfully"});
         }
         else

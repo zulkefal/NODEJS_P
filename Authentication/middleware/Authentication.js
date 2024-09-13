@@ -8,13 +8,12 @@ const authenctication = (req, res, next) => {
     } else {
         try {
             const decodedToken = jwt.verify(token, process.env.tokenSecret);
-
-            if (decodedToken.exp > Date.now() / 1000) {
+            if (decodedToken) {
                 req.decodedToken = decodedToken;
                 next();
             } 
         } catch (err) {
-            return res.status(401).json({ "Message": "Token is Expired" });
+            return res.status(401).json({ "Message": "Invalid Token" });
         }
     }
 }
